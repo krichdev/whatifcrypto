@@ -1,6 +1,18 @@
 export default async function historicalPriceAPI(req, res) {
   const { query } = req;
   const { id, date } = query;
+  if (!query) {
+    return res.status(400).json({ error: "Please provide inputs" });
+  }
+
+  if (!id) {
+    return res.status(400).json({ error: "Please provide a coin id" });
+  }
+
+  if (!date) {
+    return res.status(400).json({ error: "Please provide a date" });
+  }
+
   const fetchHistoricalPrice = await fetch(
     `https://coingecko.p.rapidapi.com/coins/${id}/history?date=${date}`,
     {
@@ -11,6 +23,8 @@ export default async function historicalPriceAPI(req, res) {
       },
     }
   );
+
   const data = await fetchHistoricalPrice.json();
+
   res.status(200).json({ data });
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Image from "next/image";
+import { toast } from "react-toastify";
 
 import CryptoSelect from "./components/cryptoSelect";
 import CryptoInput from "./components/cryptoInput";
@@ -22,6 +23,15 @@ export default function Home({ data }) {
       }
     );
     const priceData = await res.json();
+
+    if (priceData.data.market_data === undefined) {
+      setDate(DateTime.now().toFormat("yyyy-MM-dd"));
+      toast.warn("No price data for that date", {
+        position: toast.POSITION.BOTTOM_LEFT,
+      });
+      return null;
+    }
+
     const qtyPurchased = amount / priceData.data.market_data.current_price.usd;
     const currentValue = qtyPurchased * selected.current_price;
     setIsCalcActive(false);

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
+import * as ga from "./lib/ga";
 
 import CryptoSelect from "./components/cryptoSelect";
 import CryptoInput from "./components/cryptoInput";
@@ -16,6 +17,15 @@ export default function Home({ data }) {
 
   const calculateWhatIfPrice = async () => {
     const formatDate = DateTime.fromISO(date).toFormat("dd-MM-yyyy");
+    ga.event({
+      action: "calculate",
+      params: {
+        coin: selected.id,
+        date,
+        invested: amount,
+      },
+    });
+
     const res = await fetch(
       `/api/historicalPrice?id=${selected.id}&date=${formatDate}`,
       {
@@ -26,6 +36,13 @@ export default function Home({ data }) {
 
     if (priceData.data.market_data === undefined) {
       setDate(DateTime.now().toFormat("yyyy-MM-dd"));
+      ga.event({
+        action: "bad date",
+        params: {
+          coin: selected.id,
+          date,
+        },
+      });
       toast.warn("No price data for that date", {
         position: toast.POSITION.BOTTOM_LEFT,
       });

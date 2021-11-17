@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
-import * as ga from "./lib/ga";
+import * as ga from "../lib/ga";
 
 import CryptoSelect from "./components/cryptoSelect";
 import CryptoInput from "./components/cryptoInput";

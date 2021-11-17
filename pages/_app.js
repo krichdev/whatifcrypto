@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/router";
 import { ToastContainer } from "react-toastify";
-import * as ga from "./lib/ga";
+import * as ga from "../lib/ga";
 import "tailwindcss/tailwind.css";
 import Layout from "./components/layout";
 

@@ -1,82 +1,118 @@
-import Head from 'next/head'
+import { useState } from "react";
+import Image from "next/image";
 
-export default function Home() {
+import CryptoSelect from "./components/cryptoSelect";
+import CryptoInput from "./components/cryptoInput";
+import DatePicker from "./components/datePicker";
+import { DateTime } from "luxon";
+
+export default function Home({ data }) {
+  const [amount, setAmount] = useState("100");
+  const [selected, setSelected] = useState(data[0] || undefined);
+  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [price, setPrice] = useState("");
+  const [isCalcActive, setIsCalcActive] = useState(true);
+
+  const calculateWhatIfPrice = async () => {
+    const formatDate = DateTime.fromISO(date).toFormat("dd-MM-yyyy");
+    const res = await fetch(
+      `/api/historicalPrice?id=${selected.id}&date=${formatDate}`,
+      {
+        method: "GET",
+      }
+    );
+    const priceData = await res.json();
+    const qtyPurchased = amount / priceData.data.market_data.current_price.usd;
+    const currentValue = qtyPurchased * selected.current_price;
+    setIsCalcActive(false);
+    setPrice(currentValue);
+  };
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
-
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+    <div className="flex flex-col items-center h-screen py-2">
+      <main className="flex flex-col items-center justify-center w-full flex-1 px-4 md:px-20">
+        <Image
+          src="/whatifcryptologo.png"
+          alt="What If Crypto Logo"
+          width="250"
+          height="50"
+        />
+        <div className="w-full md:w-1/2 py-4 px-8 bg-white rounded-lg my-20">
+          {isCalcActive ? (
+            <>
+              <CryptoInput amount={amount} handleChangeAmount={setAmount} />
+              <CryptoSelect
+                data={data}
+                selected={selected}
+                handleChangeSelected={setSelected}
+              />
+              <DatePicker date={date} handleDateChange={setDate} />
+              <button
+                className="
+                bg-gray-800
+                w-full
+                hover:bg-gray-700
+                text-white
+                font-bold
+                py-2
+                px-4
+                rounded"
+                onClick={calculateWhatIfPrice}
+              >
+                Calculate
+              </button>
+            </>
+          ) : (
+            <div>
+              <span>
+                Your ${amount} investment would be worth ${price.toFixed(2)}{" "}
+                today
+                {price > amount ? "\u{1F4C8}" : "\u{1F4C9}"}
+              </span>
+              <button
+                className="
+                bg-gray-800
+                w-full
+                hover:bg-gray-700
+                text-white
+                font-bold
+                py-2
+                px-4
+                rounded"
+                onClick={() => setIsCalcActive(true)}
+              >
+                Reset
+              </button>
+            </div>
+          )}
         </div>
       </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
     </div>
-  )
+  );
+}
+
+export async function getServerSideProps(context) {
+  const res = await fetch(
+    "https://coingecko.p.rapidapi.com/coins/markets?vs_currency=usd&page=1&per_page=100&order=market_cap_desc",
+    {
+      method: "GET",
+      headers: {
+        "x-rapidapi-host": "coingecko.p.rapidapi.com",
+        "x-rapidapi-key": "dec4b809b3msh52274bb224e48a6p1535afjsne950e342ae82",
+      },
+    }
+  );
+  const data = await res.json();
+
+  if (!data) {
+    return {
+      notFound: true,
+    };
+  }
+
+  return {
+    props: {
+      data,
+    },
+  };
 }

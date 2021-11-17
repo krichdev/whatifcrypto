@@ -17,12 +17,12 @@ export default function CryptoSelect({ data, selected, handleChangeSelected }) {
           <Listbox.Button className="relative w-full bg-white border border-gray-300 rounded-md shadow-sm pl-3 pr-10 py-2 text-left cursor-default focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
             <span className="flex items-center">
               <img
-                src={selected.image}
+                src={selected?.image}
                 alt=""
                 className="flex-shrink-0 h-6 w-6 rounded-full"
               />
               <span className="ml-3 block truncate">
-                {selected.name} - ${selected.current_price}
+                {selected?.name} - ${selected?.current_price}
               </span>
             </span>
             <span className="ml-3 absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
@@ -40,7 +40,7 @@ export default function CryptoSelect({ data, selected, handleChangeSelected }) {
             leaveTo="opacity-0"
           >
             <Listbox.Options className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-56 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
-              {data.map((coin) => (
+              {data?.map((coin) => (
                 <Listbox.Option
                   key={coin.id}
                   className={({ active }) =>

@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { CheckIcon, SelectorIcon } from "@heroicons/react/solid";
+import { DateTime } from "luxon";
 
 export default function DatePicker({ date, handleDateChange }) {
   return (
@@ -12,6 +13,7 @@ export default function DatePicker({ date, handleDateChange }) {
         <div className="mt-1 relative">
           <input
             type="date"
+            max={DateTime.now().toFormat("yyyy-MM-dd")}
             className="
               block
               w-full

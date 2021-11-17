@@ -9,7 +9,7 @@ import { DateTime } from "luxon";
 export default function Home({ data }) {
   const [amount, setAmount] = useState("100");
   const [selected, setSelected] = useState(data[0] || undefined);
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
+  const [date, setDate] = useState(DateTime.now().toFormat("yyyy-MM-dd"));
   const [price, setPrice] = useState("");
   const [isCalcActive, setIsCalcActive] = useState(true);
 
@@ -63,10 +63,10 @@ export default function Home({ data }) {
               </button>
             </>
           ) : (
-            <div>
-              <span>
-                Your ${amount} investment would be worth ${price.toFixed(2)}{" "}
-                today
+            <div className="py-8">
+              <span className="text-3xl">
+                Your ${amount} investment would be worth around $
+                {parseInt(price)} today{" "}
                 {price > amount ? "\u{1F4C8}" : "\u{1F4C9}"}
               </span>
               <button
@@ -78,6 +78,7 @@ export default function Home({ data }) {
                 font-bold
                 py-2
                 px-4
+                mt-4
                 rounded"
                 onClick={() => setIsCalcActive(true)}
               >
